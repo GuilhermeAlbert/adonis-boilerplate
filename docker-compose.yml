@@ -1,0 +1,54 @@
+# v3 syntax
+version: '3.8'
+
+# Named volumes
+volumes:
+  # MySQL Data
+  mysql-data:
+    driver: local
+
+# Named networks
+networks:
+  backend-network:
+    name: 'backend-network'
+
+# App services
+services:
+  # MySQL (8+)
+  mysql:
+    image: mysql:8.0
+    command: mysqld --default-authentication-plugin=mysql_native_password
+    restart: always
+    volumes:
+      - mysql-data:/var/lib/mysql
+    ports:
+      - 3306:3306
+    expose:
+      - 3306
+    environment:
+      - MYSQL_ROOT_PASSWORD=backend
+      - MYSQL_DATABASE=backend
+      - MYSQL_USER=backend
+      - MYSQL_PASSWORD=backend
+      - MYSQL_ALLOW_EMPTY_PASSWORD=true
+    networks:
+      - backend-network
+
+  # Adonis API
+  app:
+    build:
+      context: .
+      dockerfile: ./.docker/Dockerfile
+    volumes:
+      - .:/home/node/app
+      - /home/node/app/node_modules
+    expose:
+      - 3333
+    ports:
+      - 3333:3333
+    depends_on:
+      - mysql
+    links:
+      - mysql
+    networks:
+      - backend-network
