@@ -21,7 +21,6 @@
 import Route from '@ioc:Adonis/Core/Route'
 
 Route.group(() => {
-  Route.group(() => {
-    require('./routes/auth')
-  }).prefix('/v1')
-}).prefix('/api')
+  require('./routes/auth')
+  require('./routes/user')
+}).prefix('/api/v1')
